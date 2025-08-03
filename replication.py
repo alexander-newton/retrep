@@ -60,6 +60,7 @@ def replicate(metadata, y, X, interest, fe=None, z=None, elasticity=False, repli
     kwargs_ppml = kwargs_ppml if kwargs_ppml is not None else {}
 
     replicator = Replicator(metadata, y, X, interest, fe=fe, z=z, elasticity=elasticity, replicated=replicated, kwargs_estimator=kwargs_estimator, kwargs_fit=kwargs_fit)
+    # I separated the ols and ppml results in loglinearcorrection so that they could easily be estimated without the full correction term.
     ols_results = replicator.replicate_ols(weights=None, **kwargs_ols)
     print('OLS res:')
     ppml_results = replicator.replicate_ppml(weights=None, **kwargs_ppml)
