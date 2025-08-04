@@ -30,7 +30,9 @@ For each replication, the target output is a `xxx.json` file stored in the `targ
       "interest": [0], #which variables are most of interest
       "y": [1.2,4.5,...], #the y variable column,
       "X": [[1.6,2.3,...],[2.3,45.6,...]],#the X matrix, in case of IVs then only endogenous variables
-      "IVs": [[1.6,2.3,...],[1.3,5.8,...],...] #which variables are instruments (zero-indexed), including all exogeneous variables
+      "IVs": [[1.6,2.3,...],[1.3,5.8,...],...], #which variables are instruments (zero-indexed), including all exogeneous variables
+      "covtype": "HC1", #type of covariance
+      "clustering": [3,4], #variables on which variance is clustered if applicable (don't include if not neessary)
 
     },
     {
