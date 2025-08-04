@@ -27,10 +27,11 @@ For each replication, the target output is a `xxx.json` file stored in the `targ
       "model": "log-linear", #log-linear, exponential
       "elasticity": 1, #1 if elasticity, 0 if semi-elasticity
       "FEs": [4,5,6], #which variables are fixed effects (zero-indexed)
-      "IVs": [8], #which variables are instruments (zero-indexed)
       "interest": [0], #which variables are most of interest
       "y": [1.2,4.5,...], #the y variable column,
-      "X": [[1.6,2.3,...],[2.3,45.6,...]],#the X matrix,
+      "X": [[1.6,2.3,...],[2.3,45.6,...]],#the X matrix
+      "IVs": [[1.6,2.3,...],[1.3,5.8,...],...] #which variables are instruments (zero-indexed)
+
     },
     {
       ...
