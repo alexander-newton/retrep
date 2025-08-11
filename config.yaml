@@ -1,2 +1,4 @@
-rawdata: "/home/exampleuser/documents/raw-data"
+rawdata: "./rawdata"
 intermediatedata: "home/exampleuser/documents/intermediate-data"
+finaldata: "./final_data"
+output: "./output"
