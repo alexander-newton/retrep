@@ -3,4 +3,5 @@ config.yaml
 *.idea
 rawdata
 outputdata
+documentation/replicate*
 

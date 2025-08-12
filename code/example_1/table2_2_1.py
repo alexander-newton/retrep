@@ -56,7 +56,7 @@ metadata_result_1 = {
     'paper_id': '011Example', #Put only the 3 digit code, here more because example.
     'table_id': '2',
     'panel_identifier': 'A1_2', # THIS WILL NEED TO CHANGE FOR EACH RESULT
-    'model_type': 'semi-elasticity',
+    'model_type': 'log-linear',
     'comments': 'Replication of Table 2 from Armand et al. (2020)' # WHATEVER YOU THINK IS RELEVANT
 }
 
