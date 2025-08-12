@@ -46,7 +46,7 @@ class Replicator:
         results_ppml = self.estimator._fit_base_ppml(weights=weights, **self.kwargs_ppml)
         return results_ppml
 
-    def save_output(self, data_dir, output_dir):
+    def save_output(self, output_dir):
 
 
         if not self.replicated:
@@ -81,20 +81,23 @@ class Replicator:
             metadata_dict['cluster'] = list(self.cluster)
 
         # fnc to save metadata based on paper_id
-        metadata_folder = os.path.join(output_dir, str(paper_id))
-        if not os.path.exists(metadata_folder):
-            os.makedirs(metadata_folder)
+        output_folder = os.path.join(output_dir, str(paper_id))
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
 
-        metadata_file = os.path.join(metadata_folder, f'metadata_{metadata_dict['table_id']}_{metadata_dict['panel_identifier']}.json')
+        results_folder = os.path.join(output_folder, f'result_table_{metadata_dict['table_id']}_{metadata_dict['panel_identifier']}')
+        if not os.path.exists(results_folder):
+            os.makedirs(results_folder)
+
+        metadata_file = os.path.join(results_folder, 'metadata.json')
+        if os.path.exists(metadata_file):
+            validation = input(f'METADATA FILE FOR RESULT EXISTS ALREADY, \n file_name = {metadata_file} \n If you want to proceed, type Y')
+            if not validation.lower() == 'y':
+                print('Terminating saving')
+                return
+
         with open(metadata_file, 'w') as f:
             json.dump(metadata_dict, f, default=str)
-
-
-
-        # fnc to save data based on paper_id
-        data_folder = os.path.join(data_dir, str(paper_id))
-        if not os.path.exists(data_folder):
-            os.makedirs(data_folder)
 
 
         data_y = pd.DataFrame(self.y)
@@ -103,17 +106,17 @@ class Replicator:
 
 
         # save data as parquet
-        data_y.to_parquet(data_folder + f'/{metadata_dict['panel_identifier']}_y')
-        data_X.to_parquet(data_folder + f'/{metadata_dict['panel_identifier']}_X')
+        data_y.to_parquet(os.path.join(results_folder, f'y.parquet'))
+        data_X.to_parquet(os.path.join(results_folder, f'X.parquet'))
 
         if data_instruments is not None:
-            data_instruments.to_parquet(data_folder + f'/{metadata_dict['panel_identifier']}_Z')
+            data_instruments.to_parquet(os.path.join(results_folder, f'z.parquet'))
 
 
 
 def replicate(metadata, y, X, interest, endog_x=None, z=None, fe=None, elasticity=False, replicated=False, kwargs_estimator=None,
               kwargs_fit=None, kwargs_ols=None, kwargs_ppml=None, fit_full_model=False, output=False,
-              data_dir= None, output_dir=None):
+             output_dir=None):
     """
     Replicate the results using the provided metadata and data.
     """
@@ -133,7 +136,7 @@ def replicate(metadata, y, X, interest, endog_x=None, z=None, fe=None, elasticit
         print('Full model fitting will be added soon, patience!')
 
     if output:
-        if output_dir is None or data_dir is None:
-            raise ValueError("Output directory and data directory must be specified if output is True.")
-        replicator.save_output(data_dir, output_dir)
+        if output_dir is None:
+            raise ValueError("Output directory must be specified if output is True.")
+        replicator.save_output(output_dir)
 

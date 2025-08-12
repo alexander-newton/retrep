@@ -1,4 +1,3 @@
 rawdata: "./rawdata"
-intermediatedata: "home/exampleuser/documents/intermediate-data"
-finaldata: "./final_data"
-output: "./output"
+intermediatedata: "home/exampleuser/documents/intermediatedata"
+outputdata: "./outputdata"
