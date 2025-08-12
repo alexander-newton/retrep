@@ -18,7 +18,7 @@ from utils.json_utils import ReplicationJSONBuilder, load_config
 
 # Load configuration
 config = load_config()
-raw_data_folder = config.get('rawdata', './rawdata')
+raw_data_folder = config.get('rawdata', './rawdata') # Don't give it a default path, make sure it uses the one from config
 intermediate_data_folder = config.get('intermediatedata', './intermediate_data')
 final_data_folder = config.get('finaldata', './final_data')
 output_folder = config.get('output', './output')
@@ -93,11 +93,8 @@ replicate(
     kwargs_estimator={'estimator_type': 'ols'},
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col1}},
     kwargs_ppml=None,
-    cluster=cluster_col1,
-    comments='Table 3 Panel B Column 1: RevperWorker on Form with FE',
     fit_full_model=False,
     output=True,
-    data_dir='./data',
     output_dir='./output'
 )
 
@@ -149,8 +146,7 @@ replicate(
     comments='Table 3 Panel B Column 2: PowerperWorker on Form with FE',
     fit_full_model=False,
     output=True,
-    data_dir='./data',
-    output_dir='./output'
+    output_dir='./output' # MAKE SURE YOU USE the folder you defined on top, not relative path
 )
 
 # Create JSON entry for Column 2
