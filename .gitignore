@@ -2,6 +2,7 @@ config.yaml
 *.venv
 *.idea
 rawdata
+intermediatedata
 outputdata
 documentation/replicate*
 
