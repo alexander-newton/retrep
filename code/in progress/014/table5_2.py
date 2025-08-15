@@ -53,8 +53,9 @@ cluster_id2 = df_col2['id']
 metadata_col2 = {
     'paper_id': '014',
     'table_id': '5',
-    'column': '2',
-    'model_type': 'log-linear'
+    'panel_identifier': '2',
+    'model_type': 'log-linear',
+    'comment': 'Column (2) of Table 5.2: Main treatment with lagged dependent variables as controls'
 }
 
 # Run: equivalent to Stata reghdfe with FE and vce(cluster id)
