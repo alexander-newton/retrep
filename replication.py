@@ -118,7 +118,7 @@ class Replicator:
 
 
 
-def replicate(metadata, y, X, interest, endog_x=None, z=None, fe=None, elasticity=False, replicated=False, kwargs_estimator=None,
+def replicate(metadata, y, X, interest, weights=None, endog_x=None, z=None, fe=None, elasticity=False, replicated=False, kwargs_estimator=None,
               kwargs_fit=None, kwargs_ols=None, kwargs_ppml=None, fit_full_model=False, output=False,
              output_dir=None, overwrite=False):
     """
@@ -189,7 +189,7 @@ def replicate(metadata, y, X, interest, endog_x=None, z=None, fe=None, elasticit
 
     # Add covtype hc3 here maybe?
     replicator = Replicator(metadata, y, X, interest, endog_x=endog_x, z=z, fe=fe, elasticity=elasticity, replicated=replicated, kwargs_estimator=kwargs_estimator, kwargs_fit=kwargs_fit, kwargs_ols=kwargs_ols, kwargs_ppml=kwargs_ppml)
-    ols_results = replicator.replicate_ols(weights=None)
+    ols_results = replicator.replicate_ols(weights=weights)
     print('OLS res:')
     print(ols_results.summary(yname=replicator.estimator.endog_names,xname=list(replicator.estimator.exog_names)))
     # ppml_results = replicator.replicate_ppml(weights=None)

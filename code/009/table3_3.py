@@ -63,24 +63,19 @@ main_treatment = 'inf_gva'
 control_set = ['diff_patents_gva', 'difflnTFP', 'year', 'branch']
 
 # =====================================
-# APPLY WEIGHTS MANUALLY (WLS transformation)
+# PREPARE DATA WITHOUT MANUAL WEIGHTING
 # =====================================
 
-# For weighted least squares, multiply both y and X by sqrt(weights)
-weights_sqrt = np.sqrt(df['weight_workers'])
+# Prepare y (outcome variable)
+y_col3 = df['gap_change_ratio']
 
-# Weight the dependent variable
-y_col3 = df['gap_change_ratio'] * weights_sqrt
+# Prepare X (independent variables with constant)
+X_col3 = sm.add_constant(df[[main_treatment] + control_set], prepend=False)
 
-# Weight the independent variables
-X_weighted = df[[main_treatment] + control_set].copy()
-for col in X_weighted.columns:
-    X_weighted[col] = X_weighted[col] * weights_sqrt
+# Extract weights
+weights_col3 = df['weight_workers']
 
-# Add constant AFTER weighting
-X_col3 = sm.add_constant(X_weighted, prepend=False)
-
-# Cluster variable (not weighted)
+# Cluster variable
 cluster_col3 = df['branch']
 
 # METADATA FOR THIS RESULT
@@ -92,7 +87,7 @@ metadata_col3 = {
     'comments': 'Table 2 Column 3: Change in log TFP gap = ln(FRG_growth/GDR_growth) with patent gap and lagged TFP gap controls, weighted by workers'
 }
 
-# RUN THE REPLICATION with pre-weighted data
+# RUN THE REPLICATION with weights parameter
 replicate(
     metadata=metadata_col3,
     y=y_col3,
@@ -100,5 +95,6 @@ replicate(
     interest='inf_gva',
     elasticity=False,
     fe=['year', 'branch'],
+    weights=weights_col3,  # Pass weights directly to the function
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col3}},
 )
