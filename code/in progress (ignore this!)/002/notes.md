@@ -9,4 +9,4 @@ code/R/EstimateFactorScores.R
 
 code/R/Assemble BootstrapFS.R
 
-maybe just table 6/7 col 1 only (OLS log-log)
+maybe table 6/7 col 1 only (OLS log-log)
