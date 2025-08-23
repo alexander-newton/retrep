@@ -1,0 +1,1 @@
+* For IV, origin and destination FE are included as dummy controls in both X and Z matrices (rather than absorbed) for computational efficiency.
