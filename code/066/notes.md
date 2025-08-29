@@ -1,0 +1,2 @@
+# issues:
+* table3_1: adding wieghts with fe; The replicate function drops singleton observations (fixed effect groups with only one observation) during demeaning but doesn't adjust the weights array accordingly, causing dimension mismatch errors.
