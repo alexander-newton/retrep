@@ -47,7 +47,7 @@ cluster_col2 = df_clean['boat_num']
 
 # METADATA FOR THIS RESULT
 metadata_col2 = {
-    'paper_id': 'boat_study',  # Update with actual paper ID
+    'paper_id': '085',  # Update with actual paper ID
     'table_id': '5',
     'panel_identifier': 'A_2',
     'model_type': 'log-linear',  # log-linear since distance_port2 is log of distance
@@ -63,5 +63,4 @@ replicate(
     elasticity=False,
     fe=fe_variables,
     #kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col2}},
-    output=True, output_dir=OUTPUT_DIR, replicated=True
-)
+    output=True, output_dir=OUTPUT_DIR, replicated=True, overwrite=True)
