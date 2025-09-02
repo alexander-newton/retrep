@@ -5,7 +5,7 @@ import statsmodels.api as sm
 import numpy as np
 from scipy import stats
 import sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 from replication import replicate
 
 # Load configuration
@@ -19,10 +19,7 @@ INPUT_DATA_DIR = config['intermediatedata']
 filepath = os.path.join(INPUT_DATA_DIR, '012/diagnoza_replicate.dta')
 df = pd.read_stata(filepath)
 
-# Convert categorical columns to numeric
-for col in df.columns:
-    if df[col].dtype.name == 'category':
-        df[col] = df[col].cat.codes
+
 
 # Define base controls first
 base_controls = [
@@ -35,14 +32,19 @@ base_controls = [
     'age_birth_1970s', 'age_sq_birth_1970s',
     'age_birth_1980s', 'age_sq_birth_1980s',
     'age_birth_1990s', 'age_sq_birth_1990s',
-    'rural'
+    'rural', 'city'
 ]
 
 # Create the exact sample from the first regression (before standardization)
 # This matches: areg log_hhincome anybody_from_kresy edu_years $base_controls pow_FE_indicator if pensioner_status==0
 sample_vars = ['log_hhincome', 'anybody_from_kresy', 'edu_years'] + base_controls + ['pow_FE_indicator', 'powiaty_code', 'hh']
-df = df[df['pensioner_status'] == 0].copy()
 df = df.dropna(subset=sample_vars)
+# Convert categorical columns to numeric
+for col in df.columns:
+    if df[col].dtype.name == 'category':
+        df[col] = df[col].cat.codes
+df = df[df['pensioner_status'] == 0].copy()
+
 
 # Now standardize education years within this exact sample (matching Stata's e(sample))
 df['edu_years_std'] = (df['edu_years'] - df['edu_years'].mean()) / df['edu_years'].std()

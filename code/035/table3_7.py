@@ -6,7 +6,6 @@ import numpy as np
 
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from replication import replicate
 
 # Load configuration
@@ -24,6 +23,7 @@ df = pd.read_stata(filepath)
 # CREATE MISSING VARIABLES BEFORE FILTERING
 # =====================================
 
+
 # Convert ONLY specific categorical variables that need to be numeric
 # NOT year! Keep year as is for filtering
 vars_to_convert = ['tr_0', 'tr_1', 'tr_2', 'tr_3', 'ethn_macua', 'ethn_maconde', 
@@ -33,15 +33,18 @@ vars_to_convert = ['tr_0', 'tr_1', 'tr_2', 'tr_3', 'ethn_macua', 'ethn_maconde',
                    'ebony', 'exwood', 'gold', 'charcoal', 'graphite', 'stones', 
                    'mercury', 'fishing', 'salt', 'nat_gas']]
 
+# 1. Try to create infrastructure if variables exist
+infra_vars = ['cm_a1_a_1', 'cm_a1_b_1', 'cm_a1_c_1', 'cm_a1_d_1',
+              'cm_a1_e_3', 'cm_a1_f_3', 'cm_a1_g_3', 'cm_a1_h_3',
+              'cm_a1_i_3', 'cm_a1_j_3', 'cm_a1_k_3', 'cm_a1_l_3',
+              'cm_a1_m', 'cm_a1_n']
+
 for col in vars_to_convert:
     if col in df.columns and df[col].dtype.name == 'category':
         df[col] = df[col].cat.codes
+        df[col] = df[col].replace(-1, np.nan)
 
-# 1. Try to create infrastructure if variables exist
-infra_vars = ['cm_a1_a_1', 'cm_a1_b_1', 'cm_a1_c_1', 'cm_a1_d_1', 
-              'cm_a1_e_3', 'cm_a1_f_3', 'cm_a1_g_3', 'cm_a1_h_3', 
-              'cm_a1_i_3', 'cm_a1_j_3', 'cm_a1_k_3', 'cm_a1_l_3', 
-              'cm_a1_m', 'cm_a1_n']
+
 
 existing_infra = [var for var in infra_vars if var in df.columns]
 if existing_infra:
@@ -49,19 +52,20 @@ if existing_infra:
     for var in existing_infra:
         if df[var].dtype.name == 'category':
             df[var] = df[var].cat.codes
-        df[var] = df[var].replace(-1, np.nan)
+            df[var] = df[var].replace(-1, np.nan)
     df['infrastructure'] = df[existing_infra].mean(axis=1, skipna=True)
 
 # 2. Create nat_res
-res_vars = ['cm_res_limestone', 'cm_res_marble', 'cm_res_sand', 'cm_res_forest', 
-            'cm_res_ebony', 'cm_res_exwood', 'cm_res_gold', 'cm_res_charcoal', 
-            'cm_res_graphite', 'cm_res_stones', 'cm_res_mercury', 'cm_res_fishing', 
+res_vars = ['cm_res_limestone', 'cm_res_marble', 'cm_res_sand', 'cm_res_forest',
+            'cm_res_ebony', 'cm_res_exwood', 'cm_res_gold', 'cm_res_charcoal',
+            'cm_res_graphite', 'cm_res_stones', 'cm_res_mercury', 'cm_res_fishing',
             'cm_res_salt', 'cm_res_nat_gas']
 
 # Make sure res_vars are numeric before summing
 for var in res_vars:
     if var in df.columns and df[var].dtype.name == 'category':
         df[var] = df[var].cat.codes
+        df[var] = df[var].replace(-1, np.nan)
 
 df['nat_res'] = df[res_vars].sum(axis=1, skipna=True) / 10
 
@@ -71,6 +75,7 @@ for var in ['ethn_macua', 'ethn_maconde', 'educ_3']:
         # Convert to numeric if it's categorical
         if df[var].dtype.name == 'category':
             df[var] = df[var].cat.codes
+            df[var] = df[var].replace(-1, np.nan)
         df[f'm{var}'] = df.groupby(['year', 'ae_id'], observed=True)[var].transform('mean')
 
 # NOW filter to 2017
@@ -126,6 +131,7 @@ X_col7 = df_filtered[[main_treatment] + available_controls].copy()
 for col in X_col7.columns:
     if X_col7[col].dtype.name == 'category':
         X_col7[col] = X_col7[col].cat.codes
+        X_col7[col] = X_col7[col].replace(-1, np.nan)
 
 # Drop missing values
 X_col7 = X_col7.dropna()

@@ -1,4 +1,8 @@
-import os, yaml, numpy as np, pandas as pd, statsmodels.api as sm
+import os
+import yaml
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
 from replication import replicate
 
 # Config
@@ -42,7 +46,7 @@ df['DyadFactor'] = df['dyad_unord'].astype('category')
 # Merge WDI
 w_c1 = wdi.rename(columns={'country':'c1','ppi':'ppi_c1','ner':'ner_c1'})
 w_c2 = wdi.rename(columns={'country':'c2','ppi':'ppi_c2','ner':'ner_c2'})
-dw = df.merge(w_c1, on=['c1','year'], how='left').merge(w_c2, on=['c2','year'], how='left')
+dw = df.merge(w_c1, on=['c1','year'], how='left').merge(w_c2, on=['c2','year'], how='left') # This line is a bit sus.
 
 # Calculate ER and PPI growth factors
 dw['ner_ratio'] = dw['ner_c2'] / dw['ner_c1']

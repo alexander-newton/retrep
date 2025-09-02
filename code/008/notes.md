@@ -22,3 +22,7 @@ Weight normalization: Properly scaled to sum to N ✓
 
 Likely Source of Deviation: (?!)
 Implementation differences between Stata's ivregress 2sls [aw=weights] and Python's linearmodels.IV2SLS with weights, particularly in handling weighted IV with 200+ fixed effects.
+
+# Meet Comments
+
+Interesting, not sure why this is happening. Probably because weights not being used in first stage.
