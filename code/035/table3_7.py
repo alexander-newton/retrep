@@ -162,4 +162,5 @@ replicate(
     interest='tc2', 
     elasticity=False,
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col7}},
+    # replicated=True, output=True, output_dir=OUTPUT_DIR
 )

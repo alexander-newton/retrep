@@ -82,6 +82,6 @@ replicate(
     elasticity=False, 
     fe=['id', 'week', 'month_calendar'],
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col2}},
-    output=True, output_dir=OUTPUT_DIR, replicated=True
+    # output=True, output_dir=OUTPUT_DIR, replicated=True
 )
 

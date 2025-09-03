@@ -92,5 +92,5 @@ replicate(
     fe=None,
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col2}},
     weights=rd_weights,
-    output=True, output_dir=OUTPUT_DIR, replicated=True
+    # output=True, output_dir=OUTPUT_DIR, replicated=True
 )

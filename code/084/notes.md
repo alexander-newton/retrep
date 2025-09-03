@@ -12,4 +12,4 @@ Our stockgrowth coefficient: ~0.336)
 
 
 # Meet Comments:
-not seen this, lets look together tomorrow perhaps opportunity to learn.
+Will look at it at future date - not sure.

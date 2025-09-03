@@ -4,4 +4,4 @@ cleaning data and generating final data -'087/paneldata_July2017.txt'- was faile
 whole matlab package is publicly available.
 
 # Meet comments:
-Not sure what this means.
+Meet to give Kimia full data after running matlab file.

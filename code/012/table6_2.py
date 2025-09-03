@@ -43,6 +43,7 @@ df = df.dropna(subset=sample_vars)
 for col in df.columns:
     if df[col].dtype.name == 'category':
         df[col] = df[col].cat.codes
+
 df = df[df['pensioner_status'] == 0].copy()
 
 
