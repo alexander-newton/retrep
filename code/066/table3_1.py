@@ -6,7 +6,6 @@ import numpy as np
 
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from replication import replicate
 
 # Load configuration
@@ -68,5 +67,5 @@ replicate(
     X=X,  # Keep as DataFrame for FE handling
     interest='ceo_behavior',
     fe=['year', 'cty', 'sic'],
-    #weights=weights,
+    weights=weights,
 )

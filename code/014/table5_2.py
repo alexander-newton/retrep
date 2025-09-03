@@ -6,7 +6,6 @@ import numpy as np
 
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from replication import replicate
 
 # Load configuration
@@ -47,7 +46,7 @@ df = df.dropna(subset=['L1_ln_ACLED_conflict', 'L2_ln_ACLED_conflict',
 # =====================================
 
 # Define dependent variable (ACLED_conflict + 1 in levels since replicate function takes log internally)
-y_col2 = df['ACLED_conflict_plus1'].values
+y_col2 = df['ACLED_conflict_plus1']
 
 # Main treatment variable
 main_treatment = 'post_qualification'
@@ -83,6 +82,6 @@ replicate(
     elasticity=False, 
     fe=['id', 'week', 'month_calendar'],
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col2}},
-    output=True, output_dir=OUTPUT_DIR, replicated=True
+    # output=True, output_dir=OUTPUT_DIR, replicated=True
 )
 

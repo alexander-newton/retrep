@@ -4,3 +4,7 @@
 3. Variable Names: Dataset names differ from Stata code (junior_plus vs junior)
 5. Cluster SE: Variable length mismatch after transformations
 6. only saved 4_6 with closest results and 4_11 (less satisfying!) but those count as the main results of this table.
+
+
+# Meet Comments:
+Please delete not fully replicated results.

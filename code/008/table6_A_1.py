@@ -5,7 +5,6 @@ import statsmodels.api as sm
 import numpy as np
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from replication import replicate
 
 # Load configuration
@@ -60,27 +59,20 @@ if weight_col in df.columns:
 print(f"Final sample size: {len(df_clean)}")  # Should be 10,678
 
 # Prepare variables
-y = df_clean[y_var].values.astype(float)
+y = df_clean[y_var]
 
-# Build X matrix with district dummies
-district_dummies = pd.get_dummies(df_clean['vhg_dist_id'], prefix='dist', drop_first=True)
+
 
 # Combine all variables: r2012 first, then RD terms, then controls, then district FEs, then constant
-X = pd.concat([
-    df_clean[['r2012']],
-    df_clean[all_controls],
-    district_dummies
-], axis=1)
+X = df[['r2012'] + all_controls + ['vhg_dist_id']]
 X = sm.add_constant(X, prepend=False)
 
-# Convert to numpy array with float type
-X = X.values.astype(float)
 
 # Get weights if available
-weights = df_clean[weight_col].values.astype(float) if weight_col in df_clean.columns else None
+weights = df_clean[weight_col]
 
 # Instrument - convert to float numpy array
-z = df_clean[['t']].values.astype(float)
+z = df_clean[['t']]
 
 # Metadata
 metadata = {
@@ -96,13 +88,8 @@ replicate(
     metadata=metadata,
     y=y,
     X=X,
-    interest=0,  # r2012 is at index 0
+    interest=0,
+    endog_x = [0],
     weights=weights,
-    endog_x=[0],
-    z=z
-)
-
-
-
-
-
+    z=z,
+    fe=['vhg_dist_id'])# r2012 is at index 0

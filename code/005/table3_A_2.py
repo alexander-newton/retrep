@@ -6,7 +6,6 @@ import numpy as np
 
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from replication import replicate
 
 # Load configuration
@@ -93,5 +92,5 @@ replicate(
     fe=None,
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col2}},
     weights=rd_weights,
-    output=True, output_dir=OUTPUT_DIR, replicated=True
+    # output=True, output_dir=OUTPUT_DIR, replicated=True
 )

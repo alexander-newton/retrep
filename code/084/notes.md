@@ -9,3 +9,7 @@ Our stockgrowth coefficient: ~0.336)
 - Handled NaN weights properly in early years
 - Used correct forward operators (shift(-1))
 - Matched variable order from the table
+
+
+# Meet Comments:
+Will look at it at future date - not sure.

@@ -9,3 +9,6 @@ Standardized the qij values: Subtracted mean, divided by standard deviation
 Ran log-linear regression: Savings (in levels) on standardized qij, with village clustering
 
 Result: 1 SD increase in qij_ARD → 10.5% increase in savings (paper reports 18.5%)
+
+# Meet comments:
+I want to understand whats up here

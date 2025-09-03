@@ -6,3 +6,6 @@ original results: −7.88, 4.08, 0.18
 original y: 100log(price)
 
 our y input: np.exp(-sp500_returns/100.0) ** 100
+
+# Meet comments:
+need to look at this paper further: gmm is probably not gonna be OLS.

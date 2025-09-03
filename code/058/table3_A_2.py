@@ -4,8 +4,6 @@ import pandas as pd
 import statsmodels.api as sm
 import numpy as np
 import sys
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from replication import replicate
 
 with open('./config.yaml', 'r') as file:
@@ -27,12 +25,6 @@ df['lncoltanprice_FARDC'] = df['lncoltanprice'] * df['FARDC']
 
 # Create binary airport variable (1 if close to airport, 0 otherwise)
 # Try median split or check if there's already a binary indicator
-if 'airport' in df.columns:
-    df['lncoltanprice_airport'] = df['lncoltanprice'] * df['airport']
-else:
-    # Create binary: 1 if below median distance (closer to airport)
-    df['airport_binary'] = (df['distance_airport_v'] <= df['distance_airport_v'].median()).astype(int)
-    df['lncoltanprice_airport'] = df['lncoltanprice'] * df['airport_binary']
 
 required_vars = ['marriages_', 'lncoltanprice', 'lncoltanprice_SB', 
                  'lncoltanprice_FARDC', 'lncoltanprice_SB_MILITIA', 
@@ -40,7 +32,7 @@ required_vars = ['marriages_', 'lncoltanprice', 'lncoltanprice_SB',
 
 df_clean = df[required_vars].dropna().reset_index(drop=True)
 
-y_col2 = np.exp(df_clean['marriages_'].values)
+y_col2 = np.exp(df_clean['marriages_'])
 
 treatment_vars = ['lncoltanprice', 'lncoltanprice_SB', 'lncoltanprice_FARDC', 
                   'lncoltanprice_SB_MILITIA', 'lncoltanprice_airport']
@@ -70,4 +62,5 @@ replicate(
     elasticity=True,
     fe=fe_vars,
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col2}},
+    output=True, output_dir=OUTPUT_DIR, replicated=True
 )

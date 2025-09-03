@@ -11,3 +11,9 @@ Data file `1_all_data.dta` failed to load (memory/timeout error)
 
 ## Result
 Could not complete - data loading failed at `pd.read_stata(PATH_IMPORT)`
+
+# Meet comments
+Skipped for now - will need more time to read through the paper.
+
+Give Kimia tips on dealing with high dimensional datasets.
+

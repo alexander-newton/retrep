@@ -4,8 +4,6 @@ import pandas as pd
 import statsmodels.api as sm
 import numpy as np
 import sys
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from replication import replicate
 
 with open('./config.yaml', 'r') as file:
@@ -24,17 +22,16 @@ df.loc[df['FARDC'] == 1, 'lncoltanprice_SB'] = 0
 
 df['lncoltanprice_SB_MILITIA'] = df['lncoltanprice'] * df['MILITIA']
 df['lncoltanprice_FARDC'] = df['lncoltanprice'] * df['FARDC']
-df['lncoltanprice_airport'] = df['lncoltanprice'] * df['distance_airport_v']
 
-required_vars = ['migrants_number', 'lncoltanprice', 'lncoltanprice_SB', 
-                 'lncoltanprice_FARDC', 'lncoltanprice_SB_MILITIA', 
+required_vars = ['migrants_number', 'lncoltanprice', 'lncoltanprice_SB',
+                 'lncoltanprice_FARDC', 'lncoltanprice_SB_MILITIA',
                  'lncoltanprice_airport', 'year', 'groupidv']
 
 df_clean = df[required_vars].dropna().reset_index(drop=True)
 
 y_col3 = np.exp(df_clean['migrants_number'].values)
 
-treatment_vars = ['lncoltanprice', 'lncoltanprice_SB', 'lncoltanprice_FARDC', 
+treatment_vars = ['lncoltanprice', 'lncoltanprice_SB', 'lncoltanprice_FARDC',
                   'lncoltanprice_SB_MILITIA', 'lncoltanprice_airport']
 
 fe_vars = ['year', 'groupidv']
@@ -62,5 +59,6 @@ replicate(
     elasticity=True,
     fe=fe_vars,
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col3}},
-    
+    output=True, output_dir=OUTPUT_DIR, replicated=True
+
 )
