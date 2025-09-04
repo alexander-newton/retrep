@@ -101,8 +101,7 @@ if 'gender' in df.columns and df['gender'].dtype == 'object':
 y_col7 = df['h31_conf'] + 1  
 
 # Main treatment variable
-main_treatment = 'tc2'
-
+main_treatment = ['tc1', 'tc2']
 # Define all controls
 all_controls = ['gender', 'age', 'age2', 'educ_2', 'educ_3', 'rel_muslim', 
                 'ethn_macua', 'ethn_maconde', 'hh_size', 'a16', 'married', 'sub_farmer',
@@ -125,7 +124,7 @@ df_filtered = df[valid_idx].copy()
 y_col7_filtered = df_filtered['h31_conf'] + 1
 
 # Prepare X matrix
-X_col7 = df_filtered[[main_treatment] + available_controls].copy()
+X_col7 = df_filtered[main_treatment + available_controls].copy()
 
 # Convert any remaining categorical variables in X
 for col in X_col7.columns:
@@ -159,8 +158,8 @@ replicate(
     metadata=metadata_col7, 
     y=y_col7_filtered, 
     X=X_col7, 
-    interest='tc2', 
+    interest='tc1', 
     elasticity=False,
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col7}},
-    # replicated=True, output=True, output_dir=OUTPUT_DIR
+    replicated=True, output=True, output_dir=OUTPUT_DIR
 )

@@ -3,3 +3,6 @@ both tables: When using wage differences as the outcome, many values are negativ
 
 # Meet Comment:
 Take their variable and exponentiate, should be replicable - if doesn't run contact me.
+
+# Kimia
+did it; there are big values in their log DV...

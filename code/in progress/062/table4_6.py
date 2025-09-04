@@ -119,6 +119,6 @@ replicate(
     fe=fe_indices,
     elasticity=False,
     #kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col6}},
-    output=True, output_dir=OUTPUT_DIR, replicated=True, overwrite=True
+    #output=True, output_dir=OUTPUT_DIR, replicated=True, overwrite=True
 
 )

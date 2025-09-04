@@ -20,7 +20,7 @@ INPUT_DATA_DIR = config['intermediatedata']
 # Load the demographic group level data - matching Stata exactly
 filepath_group = os.path.join(INPUT_DATA_DIR, '073/outcomes_longdif_group.dta')
 # Load BOTH the log version and level version of wage changes
-df = pd.read_stata(filepath_group, columns=['czone', 'd_hrwage_ln_1990_2008', 'd_hrwage_1990_2008',
+df = pd.read_stata(filepath_group, columns=['czone', 'd_hrwage_ln_1990_2008',
                                              'nat_earners_weight_1990', 'wage_earners_1990', 'group'])
 
 # Load and merge exposure data (m:1 merge on czone)
@@ -50,20 +50,13 @@ if df['group'].dtype == 'object':
 else:
     df['group_id'] = df['group']
 
-# =====================================
-# HANDLE NEGATIVE WAGE CHANGES
-# =====================================
-# For negative wage changes, we'll convert them to positive for logging
-# and keep track of the sign to restore later
-df['wage_change_sign'] = np.sign(df['d_hrwage_1990_2008'])
-df['d_hrwage_1990_2008_abs'] = np.abs(df['d_hrwage_1990_2008'])
 
 
 # =====================================
 # DATA CLEANING - Minimal to match Stata
 # =====================================
 # Create a copy for the regression variables (using absolute value of wage change)
-analysis_vars = ['d_hrwage_1990_2008_abs', 'wage_change_sign', 'expof_euro5_qo93_07', 'wage_earners_1990',
+analysis_vars = ['d_hrwage_ln_1990_2008', 'expof_euro5_qo93_07', 'wage_earners_1990',
                  'ipums_female_1990', 'ipums_hispanic_1990', 'ipums_white_1990', 
                  'ipums_black_1990', 'ipums_asian_1990', 'ipums_highschool_1990', 
                  'ipums_college_1990', 'ipums_masters_1990', 'ipums_above65_1990', 
@@ -75,9 +68,6 @@ analysis_vars = ['d_hrwage_1990_2008_abs', 'wage_change_sign', 'expof_euro5_qo93
 # Drop only rows with missing values in analysis variables
 df_clean = df.dropna(subset=analysis_vars)
 
-print(f"Observations after cleaning: {len(df_clean)}")
-print(f"Negative wage changes: {(df_clean['wage_change_sign'] < 0).sum()}")
-print(f"Positive wage changes: {(df_clean['wage_change_sign'] > 0).sum()}")
 
 # =====================================
 # Table 2 Panel B Column 4: Change in Log Hourly Wages, 1990-2007
@@ -85,7 +75,7 @@ print(f"Positive wage changes: {(df_clean['wage_change_sign'] > 0).sum()}")
 
 # Dependent variable - absolute value of wage change (will be logged by replicate function)
 # The sign will be restored after logging
-y_col4 = df_clean['d_hrwage_1990_2008_abs']
+y_col4 = np.exp(df_clean['d_hrwage_ln_1990_2008'])
 
 # Main treatment variable
 main_treatment = 'expof_euro5_qo93_07'

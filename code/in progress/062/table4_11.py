@@ -89,6 +89,6 @@ replicate(
    interest='primary',
    fe=fe_indices,
    elasticity=False,
-   output=True, output_dir=OUTPUT_DIR, replicated=True, overwrite=True
+   #output=True, output_dir=OUTPUT_DIR, replicated=True, overwrite=True
 
 )

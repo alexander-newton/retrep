@@ -20,7 +20,7 @@ INPUT_DATA_DIR = config['intermediatedata']
 # Load the stacked demographic group level data - matching first code's approach
 filepath_group = os.path.join(INPUT_DATA_DIR, '073/outcomes_stacked_group.dta')
 # Load specific columns like in first code
-df = pd.read_stata(filepath_group, columns=['czone', 'year', 'd_hrwage_ln', 'd_hrwage',
+df = pd.read_stata(filepath_group, columns=['czone', 'year', 'd_hrwage_ln',
                                              'nat_earners_weight_1990', 'wage_earners_1990', 'group'])
 
 # Load and merge exposure data (m:1 merge on czone and year)
@@ -45,14 +45,7 @@ df['year_2000'] = (df['year'] == 2000).astype(int)
 df['group_year'] = df['group'].astype(str) + '_' + df['year'].astype(str)
 df['group_year_id'] = pd.Categorical(df['group_year']).codes + 1
 
-# =====================================
-# HANDLE NEGATIVE WAGE CHANGES - EXACTLY LIKE FIRST CODE
-# =====================================
-# For negative wage changes, we'll convert them to positive for logging
-# and keep track of the sign to restore later
-df['wage_change_sign'] = np.sign(df['d_hrwage'])
-# Add small constant to avoid log(0) issues
-df['d_hrwage_abs'] = np.abs(df['d_hrwage']) + 0.001
+
 
 # =====================================
 # DATA CLEANING - Minimal to match Stata
@@ -65,7 +58,7 @@ else:
     raise ValueError("No exposure variable found after merges")
 
 # Create a list of variables we need - using only what exists
-analysis_vars = ['d_hrwage_abs', 'wage_change_sign', exposure_var, 'wage_earners_1990',
+analysis_vars = ['d_hrwage_ln', exposure_var, 'wage_earners_1990',
                  'division', 'group_id', 'group_year_id', 'stcode', 'year']
 
 # Check which demographic/control variables actually exist after merges
@@ -84,10 +77,7 @@ for var in potential_controls:
 existing_vars = [var for var in analysis_vars if var in df.columns]
 df_clean = df.dropna(subset=existing_vars)
 
-print(f"Observations after cleaning: {len(df_clean)}")
-print(f"Observations by year: {df_clean['year'].value_counts().sort_index()}")
-print(f"Negative wage changes: {(df_clean['wage_change_sign'] < 0).sum()}")
-print(f"Positive wage changes: {(df_clean['wage_change_sign'] > 0).sum()}")
+
 
 # =====================================
 # Table 3 Panel B Column 4: Change in Log Hourly Wages - Stacked Differences
@@ -95,7 +85,7 @@ print(f"Positive wage changes: {(df_clean['wage_change_sign'] > 0).sum()}")
 
 # Dependent variable - absolute value of wage change (will be logged by replicate function)
 # The sign will be restored after logging - EXACTLY LIKE FIRST CODE
-y_col4 = df_clean['d_hrwage_abs']
+y_col4 = np.exp(df_clean['d_hrwage_ln'])
 
 # Main treatment variable
 main_treatment = exposure_var
