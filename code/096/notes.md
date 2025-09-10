@@ -1,1 +1,1 @@
-# intermediate data obtained from running stata replication pkg : https://www.econometricsociety.org/publications/econometrica/2020/01/01/nonlinear-pricing-village-economies
+Intermediate data obtained from running stata replication pkg : https://www.econometricsociety.org/publications/econometrica/2020/01/01/nonlinear-pricing-village-economies
