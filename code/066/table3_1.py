@@ -50,7 +50,7 @@ X_vars = X_vars + fe_vars
 X = sm.add_constant(df[X_vars], prepend=False)
 
 # Define weights for the regression
-weights = df['r_averagewk'].values
+weights = df['r_averagewk']
 
 # Metadata
 metadata = {
@@ -68,4 +68,7 @@ replicate(
     interest='ceo_behavior',
     fe=['year', 'cty', 'sic'],
     weights=weights,
+    replicated=True,
+    output=True, output_dir=OUTPUT_DIR,
+    overwrite=True
 )

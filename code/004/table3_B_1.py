@@ -57,8 +57,7 @@ replicate(
     elasticity=False, 
     fe=['ProvinceFactor', 'IndustryFactor', 'YearFactor'],
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col1}},
-
-    # output=True, output_dir=OUTPUT_DIR, replicated=True
+    output=True, output_dir=OUTPUT_DIR, replicated=True
 )
 
 

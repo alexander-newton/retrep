@@ -40,13 +40,15 @@ class Replicator:
 # Make sure x and z are together
     def replicate_ols(self, weights=None):
         results_ols = self.estimator._fit_base_ols(weights=weights, **self.kwargs_ols)
+        if weights is not None:
+            self.metadata
         return results_ols
 
     def replicate_ppml(self, weights=None, **kwargs):
         results_ppml = self.estimator._fit_base_ppml(weights=weights, **self.kwargs_ppml)
         return results_ppml
 
-    def save_output(self, output_dir, overwrite=False):
+    def save_output(self, output_dir, weights=None, overwrite=False):
 
 
         if not self.replicated:
@@ -64,6 +66,7 @@ class Replicator:
         metadata_dict['panel_identifier'] = self.metadata['panel_identifier']
         metadata_dict['model_type'] = self.metadata['model_type']
         metadata_dict['elasticity'] = self.elasticity
+        metadata_dict['weights'] = weights.to_json() if weights is not None else None
         if isinstance(self.interest, np.ndarray):
             metadata_dict['interest'] = list(self.interest)
         elif isinstance(self.interest, list):
@@ -78,7 +81,7 @@ class Replicator:
         if self.estimator.instruments is not None:
             metadata_dict['endogenous_regressors'] = list(self.estimator.endog_x)
 
-        metadata_dict['kwargs_ols'] = self.kwargs_ols
+        metadata_dict['kwargs_ols'] = self.kwargs_ols # need to fix this
         metadata_dict['kwargs_ppml'] = self.kwargs_ppml
         self.metadata['time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -204,6 +207,6 @@ def replicate(metadata, y, X, interest, weights=None, endog_x=None, z=None, fe=N
     if output:
         if output_dir is None:
             raise ValueError("Output directory must be specified if output is True.")
-        replicator.save_output(output_dir, overwrite=overwrite)
+        replicator.save_output(output_dir, weights=weights, overwrite=overwrite)
     return replicator, ols_results
 

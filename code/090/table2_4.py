@@ -6,7 +6,6 @@ import statsmodels.api as sm
 import numpy as np
 
 # make your replication helper available
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from replication import replicate
 
 # Load configuration
@@ -65,7 +64,6 @@ metadata = {
 }
 
 # ---------- RUN ----------
-# If your replicate() supports weights & clustering internally, pass via kwargs_ols; otherwise adapt as needed.
 replicate(
     metadata=metadata,
     y=y,
@@ -75,5 +73,5 @@ replicate(
     fe=fe_vars,                          # i.state_fips + i.year
     weights=pweights,                 # pweight = births
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': clusters}},
-    output=True, output_dir=OUTPUT_DIR, replicated=True
+    output=True, output_dir=OUTPUT_DIR, replicated=True, overwrite=True
 )

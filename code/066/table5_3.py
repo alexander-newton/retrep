@@ -6,7 +6,6 @@ import numpy as np
 
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from replication import replicate
 
 # Load configuration
@@ -75,7 +74,6 @@ replicate(
     X=X,
     interest=['after'],
     fe=['year', 'cty', 'company_id'],
-    weights=df['r_averagewk'].values,
-    output=True, output_dir=OUTPUT_DIR, replicated=True
-
+    weights=df['r_averagewk'],
+    output=True, output_dir=OUTPUT_DIR, replicated=True, overwrite=True
 )

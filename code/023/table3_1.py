@@ -79,6 +79,5 @@ replicate(
     elasticity=False,
     fe=None,
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster_col1}},
-    kwargs_estimator={'estimator_type': 'iv'},  # Specify IV estimation
     output=True, output_dir=OUTPUT_DIR, replicated=True, overwrite=True
 )
