@@ -80,5 +80,4 @@ replicate(
     interest='doc_originality',
     elasticity=False,
     fe=fe_vars,
-
 )
