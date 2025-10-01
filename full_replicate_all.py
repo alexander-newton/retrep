@@ -95,7 +95,7 @@ def replicate_full(X,y, z, metadata):
         'beta_se': fit.parametric_results.bse[fit.interest[0]],
         'average_estimate': fit.average_estimate(),
         'estimate_at_average': fit.estimate_at_average(),
-        'bootstrap_se': fit.bootstrap_se_dict[fit.interest[0]][3],
+        'bootstrap_se': fit.bootstrap_se_dict[fit.interest[0]][2],
         'correction': np.mean(fit.correction[fit.interest[0]]),
         # 'ppml_beta': res_ppml[2]['beta']
     }
