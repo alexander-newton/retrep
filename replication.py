@@ -7,7 +7,7 @@ import pandas as pd
 # VERY MUCH WORK IN PROGRESS
 
 class Replicator:
-    def __init__(self, metadata,  y, X, interest, fe = None, endog_x = None, z = None, elasticity=False, replicated=False, kwargs_estimator=None, kwargs_fit=None, kwargs_ols = None, kwargs_ppml=None, cluster=None, comments=None):
+    def __init__(self, metadata,  y, X, interest, fe = None, endog_x = None, z = None, elasticity=False, replicated=False, kwargs_estimator=None, kwargs_fit=None, kwargs_ols = None, kwargs_ppml=None, cluster=None, comments=None, weights=None):
         self.y = y # Outcome of interest
         self.X = X # Exogenous variables, including interest and endogenous x variables
         self.instruments = z
@@ -16,6 +16,7 @@ class Replicator:
         self.kwargs_ols = kwargs_ols if kwargs_ols is not None else {'cov_type':'HC3'}
         self.kwargs_ppml = kwargs_ppml if kwargs_ppml is not None else {'cov_type':'HC3'}
         self.comments = comments if comments is not None else 'No comments provided'
+        self.weights = weights
 
         if cluster is not None:
             print('Clustered standard errors not yet implemented, will use non-clustered standard errors')
@@ -35,20 +36,19 @@ class Replicator:
             fe=fe,
             instruments=z,
             elasticity=elasticity,
+            weights = self.weights,
             **self.kwargs_estimator
         )
 # Make sure x and z are together
-    def replicate_ols(self, weights=None):
-        results_ols = self.estimator._fit_base_ols(weights=weights, **self.kwargs_ols)
-        if weights is not None:
-            self.metadata
+    def replicate_ols(self):
+        results_ols = self.estimator._fit_base_ols(weights=self.weights, **self.kwargs_ols)
         return results_ols
 
-    def replicate_ppml(self, weights=None, **kwargs):
-        results_ppml = self.estimator._fit_base_ppml(weights=weights, **self.kwargs_ppml)
+    def replicate_ppml(self):
+        results_ppml = self.estimator._fit_base_ppml(weights=self.weights, **self.kwargs_ppml)
         return results_ppml
 
-    def save_output(self, output_dir, weights=None, overwrite=False):
+    def save_output(self, output_dir, overwrite=False):
 
 
         if not self.replicated:
@@ -66,7 +66,6 @@ class Replicator:
         metadata_dict['panel_identifier'] = self.metadata['panel_identifier']
         metadata_dict['model_type'] = self.metadata['model_type']
         metadata_dict['elasticity'] = self.elasticity
-        metadata_dict['weights'] = weights.to_json() if weights is not None else None
         if isinstance(self.interest, np.ndarray):
             metadata_dict['interest'] = list(self.interest)
         elif isinstance(self.interest, list):
@@ -81,7 +80,7 @@ class Replicator:
         if self.estimator.instruments is not None:
             metadata_dict['endogenous_regressors'] = list(self.estimator.endog_x)
 
-        metadata_dict['kwargs_ols'] = self.kwargs_ols # need to fix this
+        metadata_dict['kwargs_ols'] = self.kwargs_ols
         metadata_dict['kwargs_ppml'] = self.kwargs_ppml
         self.metadata['time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -118,6 +117,8 @@ class Replicator:
 
         if data_instruments is not None:
             data_instruments.to_parquet(os.path.join(results_folder, f'z.parquet'))
+        if self.weights is not None:
+            pd.DataFrame(self.weights).to_parquet(os.path.join(results_folder, f'weights.parquet'))
 
 
 
@@ -191,8 +192,8 @@ def replicate(metadata, y, X, interest, weights=None, endog_x=None, z=None, fe=N
     """
 
     # Add covtype hc3 here maybe?
-    replicator = Replicator(metadata, y, X, interest, endog_x=endog_x, z=z, fe=fe, elasticity=elasticity, replicated=replicated, kwargs_estimator=kwargs_estimator, kwargs_fit=kwargs_fit, kwargs_ols=kwargs_ols, kwargs_ppml=kwargs_ppml)
-    ols_results = replicator.replicate_ols(weights=weights)
+    replicator = Replicator(metadata, y, X, interest, endog_x=endog_x, z=z, fe=fe, elasticity=elasticity, replicated=replicated, kwargs_estimator=kwargs_estimator, kwargs_fit=kwargs_fit, kwargs_ols=kwargs_ols, kwargs_ppml=kwargs_ppml, weights=weights)
+    ols_results = replicator.replicate_ols()
     print('OLS res:')
     print(ols_results.summary(yname=replicator.estimator.endog_names,xname=list(replicator.estimator.exog_names)))
     # ppml_results = replicator.replicate_ppml(weights=None)
@@ -207,6 +208,6 @@ def replicate(metadata, y, X, interest, weights=None, endog_x=None, z=None, fe=N
     if output:
         if output_dir is None:
             raise ValueError("Output directory must be specified if output is True.")
-        replicator.save_output(output_dir, weights=weights, overwrite=overwrite)
+        replicator.save_output(output_dir, overwrite=overwrite)
     return replicator, ols_results
 
