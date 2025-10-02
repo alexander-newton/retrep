@@ -80,7 +80,7 @@ class Replicator:
         if self.estimator.instruments is not None:
             metadata_dict['endogenous_regressors'] = list(self.estimator.endog_x)
 
-        metadata_dict['kwargs_ols'] = self.kwargs_ols
+        metadata_dict['kwargs_ols'] = self.kwargs_ols # Need to fix this
         metadata_dict['kwargs_ppml'] = self.kwargs_ppml
         self.metadata['time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 

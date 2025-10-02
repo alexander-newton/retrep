@@ -62,9 +62,9 @@ def run_replications(DIR):
             except Exception as e:
                 print(f"Error loading data for {result_path}: {e}")
                 continue
-
-        all_results_df = pd.DataFrame(all_results)
-        all_results_df.to_csv('./trial_results_se.csv')
+        #
+        # all_results_df = pd.DataFrame(all_results)
+        # all_results_df.to_csv('./trial_results_se.csv')
 
 
 
@@ -86,8 +86,8 @@ def replicate_full(X,y, z, metadata):
     #
     # }
 
-    estimator = DoublyRobustElasticityEstimator(endog=y, exog=X, interest=interest, endog_x=endog_x, instruments=z, fe=fe, estimator_type='nn', elasticity=elasticity)
-    fit = estimator.fit(method='ols', bootstrap=True, bootstrap_reps=100, weights=weights)
+    estimator = DoublyRobustElasticityEstimator(endog=y, exog=X, interest=interest, endog_x=endog_x, instruments=z, fe=fe, estimator_type='nn', elasticity=elasticity, weights=weights)
+    fit = estimator.fit(method='ols', bootstrap=True, bootstrap_reps=100)
     print(fit.summary())
     # res_ppml = fit_ppml_or_ivppml(y, X, instruments=z, fe_cols=fe, endog_cols=endog_x, interest_var=interest, hdfe=fe is not None, return_meta=True)
     res_dict = {
