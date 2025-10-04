@@ -49,11 +49,35 @@ def process_single_result(result_path, paper_id, gpu_id):
 
         print(f"[GPU {gpu_id}, PID {os.getpid()}] Processing paper {paper_id}, {panel_id}")
 
+        required_fields = [
+            'beta', 'beta_se', 'average_estimate', 'ae_bootstrap_se',
+            'conf_int_05', 'conf_int_95', 'estimate_at_average',
+            'ea_bootstrap_se', 'ea_conf_05', 'ea_conf_95',
+            'correction', 'correction_se', 'correction_05', 'correction_95'
+        ]
+
         # Check if results already exist and skip if standard error has already been estimated, otherwise re-estimate
         new_path = os.path.join(result_path, 'replication_results.pkl')
         if os.path.exists(new_path):
-            print(f"[GPU {gpu_id}] Skipping {paper_id}/{panel_id} - results already exist")
-            os.remove(new_path)
+            try:
+                # Load existing results
+                existing_results = pd.read_pickle(new_path)
+                if isinstance(existing_results, pd.Series):
+                    existing_results = existing_results.to_dict()
+                
+                # Check if all required fields are present
+                missing_fields = [field for field in required_fields if field not in existing_results]
+                
+                if not missing_fields:
+                    print(f"[GPU {gpu_id}] Skipping {paper_id}/{panel_id} - complete results already exist")
+                    return None
+                else:
+                    print(f"[GPU {gpu_id}] Re-estimating {paper_id}/{panel_id} - missing fields: {missing_fields}")
+                    os.remove(new_path)
+            except Exception as e:
+                print(f"[GPU {gpu_id}] Error reading existing results for {paper_id}/{panel_id}: {e}")
+                print(f"[GPU {gpu_id}] Re-estimating from scratch")
+                os.remove(new_path)
 
         # Load data
         metadata = os.path.join(result_path, 'metadata.json')
@@ -251,16 +275,16 @@ def replicate_full(X, y, z, metadata, gpu_id):
         'beta_se': fit.parametric_results.bse[fit.interest[0]],
         'average_estimate': fit.average_estimate(),
         'ae_bootstrap_se': fit.bootstrap_se_dict[fit.interest[0]][2],
-        'conf_int_05': np.percentile(fit.bootstrap_estimates_dict[fit.interest[0]][:,2],5),
-        'conf_int_95': np.percentile(fit.bootstrap_estimates_dict[fit.interest[0]][:,2],95),
+        'conf_int_05': fit.average_estimate() - np.percentile(fit.bootstrap_estimates_dict[fit.interest[0]][:,2],97.5),
+        'conf_int_95': fit.average_estimate() - np.percentile(fit.bootstrap_estimates_dict[fit.interest[0]][:,2],2.5),
         'estimate_at_average': fit.estimate_at_average(),
         'ea_bootstrap_se': fit.bootstrap_se_dict[fit.interest[0]][3],
-        'ea_conf_05': np.percentile(fit.bootstrap_estimates_dict[fit.interest[0]][:,3],5),
-        'ea_conf_95': np.percentile(fit.bootstrap_estimates_dict[fit.interest[0]][:,3],95),
+        'ea_conf_05': fit.estimate_at_average()-np.percentile(fit.bootstrap_estimates_dict[fit.interest[0]][:,3],97.5),
+        'ea_conf_95': fit.estimate_at_average()-np.percentile(fit.bootstrap_estimates_dict[fit.interest[0]][:,3],2.5),
         'correction': np.mean(fit.correction[fit.interest[0]]),
         'correction_se': fit.bootstrap_se_dict[fit.interest[0]][1],
-        'correction_05': np.percentile(fit.bootstrap_estimates_dict[fit.interest[0]][:,1],5),
-        'correction_95': np.percentile(fit.bootstrap_estimates_dict[fit.interest[0]][:,1],95),
+        'correction_05': np.mean(fit.correction[fit.interest[0]]) - np.percentile(fit.bootstrap_estimates_dict[fit.interest[0]][:,1],97.5),
+        'correction_95': np.mean(fit.correction[fit.interest[0]]) - np.percentile(fit.bootstrap_estimates_dict[fit.interest[0]][:,1],2.5),
     }
 
     print(res_dict)
@@ -386,8 +410,7 @@ def aggregate_saved_results(DIR, output_file='./aggregated_results.csv', exclude
 if __name__ == "__main__":
     # Use 30 parallel jobs distributed across 8 GPUs
     # Each GPU handles ~3-4 jobs simultaneously
-    pd.read_csv('
-    run_replications(DIR, n_jobs=30, verbose=10, start_from='058', exclude_papers=['50','141','144'])
+    run_replications(DIR, n_jobs=38, verbose=10, start_from=None, exclude_papers=['50','58','141','144'])
 
 
     # Aggregate all results, excluding paper 141
