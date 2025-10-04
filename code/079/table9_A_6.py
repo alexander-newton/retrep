@@ -62,6 +62,6 @@ replicate(
     elasticity=False,
     fe=None,
     weights=weights_col6,
-    #output=True, output_dir=OUTPUT_DIR, replicated=True
+    output=True, output_dir=OUTPUT_DIR, replicated=True
 
 )
