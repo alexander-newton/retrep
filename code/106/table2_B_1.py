@@ -91,7 +91,7 @@ metadata = {
     'paper_id': '106',
     'table_id': '2',
     'panel_identifier': 'B_1',
-    'model_type': 'log-linear',
+    'model_type': 'log-log',
     'comments': 'Table 2 Panel B Column 1: 2SLS of log protests on VK penetration (logvk), instrumented by SPbSU cohort 2 (logspbsu2)'
 }
 

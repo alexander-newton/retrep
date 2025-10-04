@@ -82,8 +82,5 @@ replicate(
     elasticity=False,
     weights=weights,
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster}},
-    # output=True, 
-    # output_dir=OUTPUT_DIR, 
-    # data_dir=INPUT_DATA_DIR,
-    # replicated=True
+    output=True, output_dir=OUTPUT_DIR, replicated=True
 )

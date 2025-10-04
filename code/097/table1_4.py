@@ -6,6 +6,7 @@ import numpy as np
 
 import sys
 import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from replication import replicate
 
 # Load configuration
@@ -48,10 +49,10 @@ replicate(
     metadata=metadata,
     y=y,
     X=X,
-    interest='r_pct_cov3',
+    interest=['r_pct_cov3', 'r_covgdp_wb3'],
     endog_x=['r_pct_cov3', 'r_covgdp_wb3'],
     z=z,
-    #weights=weights,
+    weights=weights,
     elasticity=False,
     #output=True, output_dir=OUTPUT_DIR, replicated=True
 )

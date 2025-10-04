@@ -84,6 +84,6 @@ replicate(
     z=z,
     fe=fe_indices,
     elasticity=False,
-    #weights=weights
-    #output=True, output_dir=OUTPUT_DIR, replicated=True
+    weights=weights,
+    output=True, output_dir=OUTPUT_DIR, replicated=True
 )
