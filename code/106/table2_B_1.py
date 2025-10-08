@@ -64,7 +64,6 @@ print(f"Sample size after dropping missing values: {len(df_clean)}")
 # Dependent variable:
 y = np.exp(df_clean['logprot'])
 
-
 # Endogenous variable: VK penetration (logvk)
 endog_x = ['logvk']
 
@@ -84,7 +83,7 @@ z = sm.add_constant(z, prepend=False)
 # Cluster variable
 cluster = df_clean['okato_reg']
 
-# Weights 
+# Weights (aweight in Stata corresponds to frequency weights)
 weights = df_clean['logpop']  
 # METADATA
 metadata = {
@@ -103,7 +102,7 @@ replicate(
     interest='logvk',  # Variable of interest
     endog_x=endog_x,  # Endogenous variables
     z=z,  # Instruments matrix
-    elasticity=False,
+    elasticity=True,
     weights=weights,
     kwargs_ols={'cov_type': 'cluster', 'cov_kwds': {'groups': cluster}},
     # output=True, 

@@ -21,27 +21,23 @@ filepath = os.path.join(INPUT_DATA_DIR, '103/workfile_immigration.dta')
 df = pd.read_stata(filepath)
 
 # =====================================
-# Table I Column 2b: 2SLS native employment, low education
-# ivreg2 d_emp_native_low (immig_shock immig_shock_nontrad = immig_iv immig_iv_nontrad) //
-#        i.occ i.czgroup [aw=pop1980], cluster(state)
+# Table I Column 2b: 2SLS employment change
+# ivreg2 d_demp (dfb_data dfb_nt_data = dfb_occ_ed1 dfb_occ_ed2 dfb_occ_ed3 dfb_occ_ed1_nt dfb_occ_ed2_nt dfb_occ_ed3_nt) //
+#        i.occ i.czone_nt [aw = wt], cluster(statefip) first
 # =====================================
 
 # Filter for low education (edcat == 1)
 df_low = df[df['edcat'] == 1].copy()
 
 # Drop missing values for required variables
-required_vars = ['d_demp', 'dfb', 'dfb_nt', 'dfb_data', 'dfb_nt_data', 'occ', 'czone_nt', 'pop_czocc', 'statefip']
+required_vars = ['d_demp', 'dfb_data', 'dfb_nt_data', 'dfb_occ_ed1', 'dfb_occ_ed2', 'dfb_occ_ed3', 'dfb_occ_ed1_nt', 'dfb_occ_ed2_nt', 'dfb_occ_ed3_nt', 'occ', 'czone_nt', 'dpop_czedocc', 'statefip']
 df_clean = df_low.dropna(subset=required_vars)
 
-# Dependent variable: native employment change (low education)
+# Dependent variable: employment change (raw, not exponentiated)
 y = np.exp(df_clean['d_demp'])
 
 # Endogenous regressors: immigration shocks
-endog_x = ['dfb', 'dfb_nt']
-
-# Convert categorical occ to numeric codes for FE algorithm
-df_clean = df_clean.copy()
-df_clean['occ_numeric'] = df_clean['occ'].cat.codes
+endog_x = ['dfb_data', 'dfb_nt_data']
 
 # X matrix: include endogenous variables
 X = df_clean[endog_x].copy()
@@ -49,20 +45,20 @@ X = df_clean[endog_x].copy()
 # Add constant
 X = sm.add_constant(X, prepend=False)
 
-# Add the fixed effects column to X
-X['occ_numeric'] = df_clean['occ_numeric']
+# Add ALL fixed effects variables as columns to X
+X['occ'] = df_clean['occ']
+X['czone_nt'] = df_clean['czone_nt']
 
 # Get the indices of FE columns in X
-# X now has columns: ['dfb', 'dfb_nt', 'const', 'occ_numeric']
-# occ_numeric is at index 3
-fe_indices = [X.columns.get_loc('occ_numeric')]  # This will be [3]
+# X now has columns: ['dfb_data', 'dfb_nt_data', 'const', 'occ', 'czone_nt']
+fe_indices = [X.columns.get_loc('occ'), X.columns.get_loc('czone_nt')]
 
-# Instruments matrix: just instruments (no need to include FE here)
-z = df_clean[['dfb_data', 'dfb_nt_data']].copy()
+# Instruments matrix: all 6 occupation-education interaction instruments
+z = df_clean[['dfb_occ_ed1', 'dfb_occ_ed2', 'dfb_occ_ed3', 'dfb_occ_ed1_nt', 'dfb_occ_ed2_nt', 'dfb_occ_ed3_nt']].copy()
 z = sm.add_constant(z, prepend=False)
 
 # Weights
-weights = df_clean['pop_czocc']
+weights = df_clean['dpop_czedocc']
 
 # Cluster variable (for future use when clustering is implemented)
 cluster = df_clean['statefip']
@@ -73,7 +69,7 @@ metadata = {
     'table_id': '1',
     'panel_identifier': 'B_2',
     'model_type': 'log-linear',
-    'comments': 'Table I Column 2b: 2SLS of native employment change on immigration shocks (low education) with occupation FE, clustered by state'
+    'comments': 'Table I Column 2b: 2SLS of employment change on immigration shocks (low education) with occupation and commuting zone FE, clustered by state'
 }
 
 # RUN THE REPLICATION
@@ -81,11 +77,11 @@ replicate(
     metadata=metadata,
     y=y,
     X=X,
-    interest='dfb',
+    interest='dfb_data',
     endog_x=endog_x,
     z=z,
     fe=fe_indices,  # Pass indices of FE columns in X, not the data itself
     elasticity=False,
-    #weights=weights
-    #output=True, output_dir=OUTPUT_DIR, replicated=True
+    weights=weights,
+    output=True, output_dir=OUTPUT_DIR, replicated=True
 )
