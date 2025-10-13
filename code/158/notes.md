@@ -1,0 +1,1 @@
+they use the same IHS functional form for every continuous outcome; there’s no separate scaling by variable. Each regression just uses asinh(y) with θ=1.
