@@ -41,52 +41,54 @@ df['ln_excise_price'] = np.log(df['excise_price'])
 df['ln_salestax_price'] = np.log(df['salestax_price'])
 df['ln_cons_beer'] = np.log(df['beer_per_cap'])
 df['ln_population'] = np.log(df['population'])
+df['ln_income'] = np.log(df['st_income'] / df['population'])
+df['ln_unemp_rate'] = np.log(df['st_uemp_rate'])
+
 # First differences (within each state)
-for var in ['ln_excise_price', 'ln_salestax_price', 'ln_cons_beer', 'ln_population']:
+for var in ['ln_excise_price', 'ln_salestax_price', 'ln_cons_beer', 'ln_population', 'ln_income', 'ln_unemp_rate']:
     df[f'd{var}'] = df.groupby('state')[var].diff()
 
 # Drop missing from first-differencing
-sample_vars = ['dln_cons_beer', 'dln_excise_price', 'dln_salestax_price', 'dln_population', 'year']
+sample_vars = ['dln_cons_beer', 'dln_excise_price', 'dln_salestax_price', 'dln_population', 'dln_income', 'dln_unemp_rate', 'year']
 df = df.dropna(subset=sample_vars)
 
 # =====================================
-# Table 6, Column 1: Baseline
-# areg dln_cons_beer dln_excise_price dln_salestax_price dln_population, a(year)
+# Table 6, Column 2: Add Economic Controls
+# areg dln_cons_beer dln_excise_price dln_salestax_price dln_population dln_income dln_unemp_rate, a(year)
 # =====================================
 
-metadata_col1 = {
+metadata_col2 = {
     'paper_id': '178',
     'table_id': 'Table6',
-    'panel_identifier': 'Col1',
+    'panel_identifier': 'Col2',
     'model_type': 'log-log'
 }
 
 # Exponentiate the log difference to put DV back in levels
-# exp(dln_cons_beer) = exp(ln(beer_t/beer_{t-1})) = beer_t/beer_{t-1}
-y_col1 = pd.DataFrame(np.exp(df['dln_cons_beer'].values), columns=['dln_cons_beer'])
+y_col2 = pd.DataFrame(np.exp(df['dln_cons_beer'].values), columns=['dln_cons_beer'])
 
 # X matrix: interest variable first, then other regressors, then FE
-X_col1 = df[['dln_excise_price', 'dln_salestax_price', 'dln_population', 'year']].reset_index(drop=True)
+X_col2 = df[['dln_excise_price', 'dln_salestax_price', 'dln_population', 'dln_income', 'dln_unemp_rate', 'year']].reset_index(drop=True)
 
 # Save to parquet
-out_dir = os.path.join(output_folder, '178', 'Table6_Col1')
+out_dir = os.path.join(output_folder, '178', 'Table6_Col2')
 os.makedirs(out_dir, exist_ok=True)
 
-y_col1.to_parquet(os.path.join(out_dir, 'y.parquet'), index=False)
-X_col1.to_parquet(os.path.join(out_dir, 'X.parquet'), index=False)
+y_col2.to_parquet(os.path.join(out_dir, 'y.parquet'), index=False)
+X_col2.to_parquet(os.path.join(out_dir, 'X.parquet'), index=False)
 
 # Save metadata
 with open(os.path.join(out_dir, 'metadata.json'), 'w') as f:
-    json.dump(metadata_col1, f, indent=2)
+    json.dump(metadata_col2, f, indent=2)
 
 replicate(
-    metadata=metadata_col1,
-    y=y_col1.values,
-    X=X_col1[['dln_excise_price', 'dln_salestax_price', 'dln_population']].values,
+    metadata=metadata_col2,
+    y=y_col2.values,
+    X=X_col2[['dln_excise_price', 'dln_salestax_price', 'dln_population', 'dln_income', 'dln_unemp_rate']].values,
     interest='dln_excise_price',
     endog_x=None,
     z=None,
-    fe=X_col1[['year']].values,
+    fe=X_col2[['year']].values,
     elasticity=True,
     replicated=True,
     kwargs_estimator={'estimator_type': 'ols'},

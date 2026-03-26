@@ -41,52 +41,70 @@ df['ln_excise_price'] = np.log(df['excise_price'])
 df['ln_salestax_price'] = np.log(df['salestax_price'])
 df['ln_cons_beer'] = np.log(df['beer_per_cap'])
 df['ln_population'] = np.log(df['population'])
+df['ln_income'] = np.log(df['st_income'] / df['population'])
+df['ln_unemp_rate'] = np.log(df['st_uemp_rate'])
+
 # First differences (within each state)
-for var in ['ln_excise_price', 'ln_salestax_price', 'ln_cons_beer', 'ln_population']:
+for var in ['ln_excise_price', 'ln_salestax_price', 'ln_cons_beer', 'ln_population', 'ln_income', 'ln_unemp_rate']:
     df[f'd{var}'] = df.groupby('state')[var].diff()
 
+# Policy control variables
+policy_vars = ['d_driving_age', 'd_bac_teen_02', 'd_lower_limit', 'd_bac_10', 'd_bac_08', 'd_admin_license_rev']
+
 # Drop missing from first-differencing
-sample_vars = ['dln_cons_beer', 'dln_excise_price', 'dln_salestax_price', 'dln_population', 'year']
+sample_vars = ['dln_cons_beer', 'dln_excise_price', 'dln_salestax_price', 'dln_population',
+               'dln_income', 'dln_unemp_rate', 'year', 'region'] + policy_vars
 df = df.dropna(subset=sample_vars)
 
 # =====================================
-# Table 6, Column 1: Baseline
-# areg dln_cons_beer dln_excise_price dln_salestax_price dln_population, a(year)
+# Table 6, Column 4: Add Region Trends
+# xi i.year
+# areg dln_cons_beer dln_excise_price dln_salestax_price dln_population dln_income dln_unemp_rate d_* _I*, a(region)
+# Note: year dummies are regressors, region is the absorbed FE
 # =====================================
 
-metadata_col1 = {
+metadata_col4 = {
     'paper_id': '178',
     'table_id': 'Table6',
-    'panel_identifier': 'Col1',
+    'panel_identifier': 'Col4',
     'model_type': 'log-log'
 }
 
 # Exponentiate the log difference to put DV back in levels
-# exp(dln_cons_beer) = exp(ln(beer_t/beer_{t-1})) = beer_t/beer_{t-1}
-y_col1 = pd.DataFrame(np.exp(df['dln_cons_beer'].values), columns=['dln_cons_beer'])
+y_col4 = pd.DataFrame(np.exp(df['dln_cons_beer'].values), columns=['dln_cons_beer'])
 
-# X matrix: interest variable first, then other regressors, then FE
-X_col1 = df[['dln_excise_price', 'dln_salestax_price', 'dln_population', 'year']].reset_index(drop=True)
+# Create year dummies (xi i.year in Stata) — these are regressors, not FE
+year_dummies = pd.get_dummies(df['year'].astype(int), prefix='yr', drop_first=True).astype(float).reset_index(drop=True)
+
+# X matrix: interest variable first, then other regressors, policy controls, year dummies, then FE (region)
+x_regressors = ['dln_excise_price', 'dln_salestax_price', 'dln_population', 'dln_income', 'dln_unemp_rate'] + policy_vars
+X_col4 = pd.concat([
+    df[x_regressors].reset_index(drop=True),
+    year_dummies,
+    df[['region']].reset_index(drop=True)
+], axis=1)
 
 # Save to parquet
-out_dir = os.path.join(output_folder, '178', 'Table6_Col1')
+out_dir = os.path.join(output_folder, '178', 'Table6_Col4')
 os.makedirs(out_dir, exist_ok=True)
 
-y_col1.to_parquet(os.path.join(out_dir, 'y.parquet'), index=False)
-X_col1.to_parquet(os.path.join(out_dir, 'X.parquet'), index=False)
+y_col4.to_parquet(os.path.join(out_dir, 'y.parquet'), index=False)
+X_col4.to_parquet(os.path.join(out_dir, 'X.parquet'), index=False)
 
 # Save metadata
 with open(os.path.join(out_dir, 'metadata.json'), 'w') as f:
-    json.dump(metadata_col1, f, indent=2)
+    json.dump(metadata_col4, f, indent=2)
 
+# For replicate: everything except region is X, region is FE
+year_dummy_cols = list(year_dummies.columns)
 replicate(
-    metadata=metadata_col1,
-    y=y_col1.values,
-    X=X_col1[['dln_excise_price', 'dln_salestax_price', 'dln_population']].values,
+    metadata=metadata_col4,
+    y=y_col4.values,
+    X=X_col4[x_regressors + year_dummy_cols].values,
     interest='dln_excise_price',
     endog_x=None,
     z=None,
-    fe=X_col1[['year']].values,
+    fe=X_col4[['region']].values,
     elasticity=True,
     replicated=True,
     kwargs_estimator={'estimator_type': 'ols'},
